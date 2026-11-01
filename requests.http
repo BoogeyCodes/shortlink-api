@@ -1,0 +1,29 @@
+### Works with the VS Code "REST Client" extension or JetBrains HTTP client.
+@host = http://localhost:5000
+
+### Create a link with a generated code
+POST {{host}}/api/links
+Content-Type: application/json
+
+{
+  "targetUrl": "https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis"
+}
+
+### Create a link with a custom code that expires in 1 hour
+POST {{host}}/api/links
+Content-Type: application/json
+
+{
+  "targetUrl": "https://github.com",
+  "customCode": "gh-docs",
+  "ttlMinutes": 60
+}
+
+### Follow a short link (expect 302)
+GET {{host}}/gh-docs
+
+### Stats for a link
+GET {{host}}/api/links/gh-docs
+
+### Delete a link
+DELETE {{host}}/api/links/gh-docs
