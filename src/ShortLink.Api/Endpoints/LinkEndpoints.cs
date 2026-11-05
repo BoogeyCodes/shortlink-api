@@ -23,6 +23,11 @@ public static class LinkEndpoints
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapGet("/", async Task<Ok<IReadOnlyList<ListLinks.Item>>> (int? limit, bool? includeExpired, ISender sender, CancellationToken ct) =>
+            TypedResults.Ok(await sender.Send(new ListLinks.Query(limit, includeExpired ?? false), ct)))
+        .WithName("ListLinks")
+        .WithSummary("List recent short links, newest first");
+
         group.MapGet("/{code}", async Task<Ok<GetLinkStats.Response>> (string code, ISender sender, CancellationToken ct) =>
             TypedResults.Ok(await sender.Send(new GetLinkStats.Query(code), ct)))
         .WithName("GetLinkStats")

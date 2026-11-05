@@ -129,6 +129,23 @@ public sealed class LinkEndpointTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Fact]
+    public async Task List_returns_recent_links_newest_first()
+    {
+        var older = await CreateAsync("https://example.com/first");
+        var newer = await CreateAsync("https://example.com/second");
+
+        var response = await _client.GetAsync("/api/links?limit=5");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var items = await response.Content.ReadFromJsonAsync<List<ListLinks.Item>>();
+        Assert.NotNull(items);
+        var codes = items!.Select(i => i.Code).ToList();
+        Assert.Contains(newer.Code, codes);
+        Assert.Contains(older.Code, codes);
+        Assert.True(codes.IndexOf(newer.Code) < codes.IndexOf(older.Code), "newest link should come first");
+    }
+
     private async Task<CreateLink.Response> CreateAsync(string target, int? ttlMinutes = null)
     {
         var response = await _client.PostAsJsonAsync("/api/links", new { targetUrl = target, ttlMinutes });
